@@ -25,7 +25,7 @@ class FigureFrame(ttk.Frame):
         self.pack()
 
         s = ttk.Style()
-        s.theme_use('aqua')
+        # s.theme_use('aqua')
 
         # variables
         if plot_type in ['Generic', 'Tafel', 'Complex Impedance', 'Complex Photocurrent']:
