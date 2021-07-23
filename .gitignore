@@ -8,6 +8,8 @@
 *.pyc
 
 .idea
+.vscode
+.mypy_cache
 
 # pipenv files
 Pipfile
