@@ -21,6 +21,7 @@ Author(s): Milan Skocic <milan.skocic@gmail.com>
 from tkinter.constants import W
 from typing import Callable
 import numpy as np
+from numpy.core.numeric import full
 from numpy.typing import ArrayLike
 from scipy import optimize
 
@@ -71,12 +72,40 @@ def residuals(p: ArrayLike,
     res = (model(p, x) - y) * w
     return res
 
+def chi2(p: ArrayLike, 
+            x: ArrayLike, 
+            y: ArrayLike,
+            w: ArrayLike,
+            model: Callable)->ArrayLike:
+    """Chi2.
+
+    Parameters
+    ----------
+    p : ArrayLike
+        Parameters
+    x : ArrayLike
+        Dependant variable
+    y : ArrayLike
+        Experimental independant data
+    w : ArrayLike
+        Weights
+    model : Callable
+        Model to be used
+
+    Returns
+    -------
+    res: ArrayLike
+        Algebric residuals.
+    """
+    res = np.sum(np.absolute(residuals(p, x, y, w, model)))
+    return res
+
 def lm_func(p: ArrayLike, 
             x: ArrayLike, 
             y: ArrayLike,
             w: ArrayLike,
             model: Callable)->ArrayLike:
-    """Absolute residuals
+    """Absolute residuals for Levenberg-Marquardt optimizer.
 
     Parameters
     ----------
@@ -98,3 +127,55 @@ def lm_func(p: ArrayLike,
     """
     res = np.absolute(residuals(p, x, y, w, model))
     return res
+
+
+def nm_func(p: ArrayLike, 
+            x: ArrayLike, 
+            y: ArrayLike,
+            w: ArrayLike,
+            model: Callable)->ArrayLike:
+    """Chi2 for simplex.
+
+    Parameters
+    ----------
+    p : ArrayLike
+        Parameters
+    x : ArrayLike
+        Dependant variable
+    y : ArrayLike
+        Experimental independant data
+    w : ArrayLike
+        Weights
+    model : Callable
+        Model to be used
+
+    Returns
+    -------
+    res: ArrayLike
+        Algebric residuals.
+    """
+    res = chi2(p, x, y, w, model)
+    return res
+
+x = np.linspace(0, 10, 10)
+p0 = np.asarray((1.1, 2.3))
+y = model(p0, x)
+w = np.ones_like(y)
+
+p0 = np.asarray((10, 10))
+popt, cov, infodict, ier, msg = optimize.leastsq(lm_func, p0, args=(x, y, w, model), full_output=True)
+print('optimize.leastsq: ', popt)
+
+
+p0 = np.asarray((10, 10))
+popt = optimize.fmin(nm_func, p0, args=(x, y, w, model), disp=0)
+print('optimize.fmin: ', popt)
+
+
+p0 = np.asarray((10, 10))
+res = optimize.least_squares(lm_func, p0, args=(x, y, w, model))
+print('optimize.least_square (trf): ', res.x)
+
+p0 = np.asarray((10, 10))
+res = optimize.least_squares(lm_func, p0, args=(x, y, w, model), method='lm')
+print('optimize.least_square (lm): ', res.x)
