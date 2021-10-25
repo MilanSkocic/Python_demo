@@ -29,14 +29,21 @@ class GUI(Frame):
         self.start_bt.pack()
         self.stop_bt.pack()
         self.process_list = list()
-        self.queue = mp.Queue()
+        self.queue = mp.SimpleQueue()
         self.running = False
+
+    def _is_alive(self):
+
+        flag = False
+        for worker in self.process_list:
+            flag += worker.is_alive()
+        return flag
         
     def on_start_bt(self):
         r"""Function for starting subprocesses."""
         self.label.configure(text='Mutiprocessing...')
         for i in range(0, 3):
-            worker = CustomProcess(self.queue, 'Process: ' + str(i + 1), 50)
+            worker = CustomProcess(self.queue, 'Process: ' + str(i + 1), 10)
             worker.daemon = True
             self.process_list.append(worker)
             worker.daemon = True
@@ -48,11 +55,12 @@ class GUI(Frame):
         r"""Function that is running every x ms for processing data pulled from subprocesses."""
         if self.running:
             try:
-                results, thread_name = self.queue.get(True)
+                results, thread_name = self.queue.get()
                 self.label.configure(text=str(results) + ' ' + str(thread_name))
-
                 if results == "Done":
                     self.label.configure(text=f"{thread_name:s} finished.")
+                    if self._is_alive():
+                        self.master.after(100, self.process_queue)
                 else:
                     self.master.after(100, self.process_queue)
 
