@@ -1,6 +1,7 @@
 r"""
 Very simple example for how the setup multiprocess with a tkinter app.
 """
+import time, random
 from tkinter import *
 from tkinter.ttk import *
 import multiprocessing as mp
@@ -34,8 +35,8 @@ class GUI(Frame):
     def on_start_bt(self):
         r"""Function for starting subprocesses."""
         self.label.configure(text='Mutiprocessing...')
-        for i in range(0, 2):
-            worker = CustomProcess(self.queue, 'Process: ' + str(i + 1), 200)
+        for i in range(0, 3):
+            worker = CustomProcess(self.queue, 'Process: ' + str(i + 1), 50)
             worker.daemon = True
             self.process_list.append(worker)
             worker.daemon = True
@@ -49,7 +50,11 @@ class GUI(Frame):
             try:
                 results, thread_name = self.queue.get(True)
                 self.label.configure(text=str(results) + ' ' + str(thread_name))
-                self.master.after(100, self.process_queue)
+
+                if results == "Done":
+                    self.label.configure(text=f"{thread_name:s} finished.")
+                else:
+                    self.master.after(100, self.process_queue)
 
             except Queue.Empty:
                 self.master.after(100, self.process_queue)
@@ -76,11 +81,13 @@ class CustomProcess(mp.Process):
     def run(self):
         r"""Custom function that is ran in the subprocess."""
         for i in range(0, self.count):
+            time.sleep(random.random())
             self.queue.put((str(i), self.name))
         self.queue.put(('Done', self.name))
 
 
 if __name__ == '__main__':
+    mp.set_start_method("spawn")
     root = Tk()
     app = GUI(root)
     root.mainloop()
