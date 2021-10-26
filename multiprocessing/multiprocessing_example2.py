@@ -60,7 +60,7 @@ class GUI(ttk.Frame):
 
         self.num_process = 2
         self.num_fit = 2
-        self.num_run = 1000
+        self.num_run = 100
         for i in range(self.num_fit - 1):
             self.a.axvline(i + self.num_run - 0.5, color='k', linewidth=2)
         self.nbfits_x = []
@@ -116,7 +116,6 @@ class GUI(ttk.Frame):
         for i in self.process_list:
             if i.is_alive():
                 i.shutdown()
-        self.stopped_processes = [1] * self.num_fit
         self.stop_bt.configure(state=tk.ACTIVE)
         self.start_bt.configure(state=tk.ACTIVE)
         self.label.configure(text='Fit Canceled...')
@@ -205,7 +204,6 @@ class SimplexProcess(mp.Process):
         i = 0
         for i in range(self.nb_run):
             if self.exit_event.is_set():
-                print("EXIT")
                 break
             else:
                 # xopt, fopt, iterations, funcalls, warnflag = optimize.fmin(self.func,
@@ -223,14 +221,12 @@ class SimplexProcess(mp.Process):
 
                 self.p0[:] = xopt[:]
 
-        else:
-            print("out of loop") 
-            msg = (self.name, 'Done', (i + self.fit_num * self.nb_run, fopt))
-            self.output_queue.put(msg)
-            print('Exiting ' + self.name + '...')
+
+        msg = (self.name, 'Done', (i + self.fit_num * self.nb_run, fopt))
+        self.output_queue.put(msg)
+        print('Exiting ' + self.name + '...')
     
     def shutdown(self):
-        print("Shutdow pressed")
         self.exit_event.set()
 
 
