@@ -1,7 +1,8 @@
 r"""
 Scrolled custom widgets.
 """
-
+from tkinter import ttk
+import tkinter as tk
 class ScrolledFrame(ttk.Frame):
     r"""Class for scrolled frames. See __init__.__doc__."""
 
