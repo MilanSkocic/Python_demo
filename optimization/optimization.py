@@ -22,10 +22,10 @@ import time
 from tkinter.constants import W
 from typing import Callable
 import numpy as np
-from numpy.typing import ArrayLike
+from numpy.typing import NDArray
 from scipy import optimize
 
-def model(p: ArrayLike, x: ArrayLike)->ArrayLike:
+def model(p: NDArray, x: NDArray)->NDArray:
     """Model to compute values to be compared with experimental data.
 
     Parameters
@@ -44,11 +44,11 @@ def model(p: ArrayLike, x: ArrayLike)->ArrayLike:
 
     return y
 
-def residuals(p: ArrayLike, 
-              x: ArrayLike, 
-              y: ArrayLike,
-              w: ArrayLike,
-              model: Callable)->ArrayLike:
+def residuals(p: NDArray, 
+              x: NDArray, 
+              y: NDArray,
+              w: NDArray,
+              model: Callable)->NDArray:
     """Algebric residuals.
 
     Parameters
@@ -72,11 +72,11 @@ def residuals(p: ArrayLike,
     res = (model(p, x) - y) * w
     return res
 
-def chi2(p: ArrayLike, 
-            x: ArrayLike, 
-            y: ArrayLike,
-            w: ArrayLike,
-            model: Callable)->ArrayLike:
+def chi2(p: NDArray, 
+            x: NDArray, 
+            y: NDArray,
+            w: NDArray,
+            model: Callable)->NDArray:
     """Chi2.
 
     Parameters
@@ -100,11 +100,11 @@ def chi2(p: ArrayLike,
     res = np.sum(np.absolute(residuals(p, x, y, w, model))**2)
     return res
 
-def lm_func(p: ArrayLike, 
-            x: ArrayLike, 
-            y: ArrayLike,
-            w: ArrayLike,
-            model: Callable)->ArrayLike:
+def lm_func(p: NDArray, 
+            x: NDArray, 
+            y: NDArray,
+            w: NDArray,
+            model: Callable)->NDArray:
     """Absolute residuals for Levenberg-Marquardt optimizer.
 
     Parameters
@@ -129,11 +129,11 @@ def lm_func(p: ArrayLike,
     return res
 
 
-def nm_func(p: ArrayLike, 
-            x: ArrayLike, 
-            y: ArrayLike,
-            w: ArrayLike,
-            model: Callable)->ArrayLike:
+def nm_func(p: NDArray, 
+            x: NDArray, 
+            y: NDArray,
+            w: NDArray,
+            model: Callable)->NDArray:
     """Chi2 for simplex.
 
     Parameters
@@ -167,7 +167,7 @@ t0 = time.time()
 popt, cov, infodict, ier, msg = optimize.leastsq(lm_func, p0, args=(x, y, w, model), full_output=True)
 t1 = time.time()
 t = (t1-t0)*1e3
-print('optimize.leastsq: ', popt, t)
+print(f'optimize.leastsq: {popt} - t={t}ms')
 
 
 p0 = np.asarray((10, 10))
@@ -175,7 +175,7 @@ t0 = time.time()
 popt = optimize.fmin(nm_func, p0, args=(x, y, w, model), disp=0)
 t1 = time.time()
 t = (t1-t0)*1e3
-print('optimize.fmin: ', popt, t)
+print(f'optimize.fmin: {popt} - t={t}ms')
 
 
 p0 = np.asarray((10, 10))
@@ -183,14 +183,14 @@ t0 = time.time()
 res = optimize.least_squares(lm_func, p0, args=(x, y, w, model))
 t1 = time.time()
 t = (t1-t0)*1e3
-print('optimize.least_square (trf): ', res.x, t)
+print(f'optimize.least_square: {popt} - t={t}ms')
 
 p0 = np.asarray((10, 10))
 t0 = time.time()
 res = optimize.least_squares(lm_func, p0, args=(x, y, w, model), method='lm')
 t1 = time.time()
 t = (t1-t0)*1e3
-print('optimize.least_square (lm): ', res.x, t)
+print(f'optimize.least_square (lm): {popt} - t={t}ms')
 print(chi2(res.x, x, y, w, model), res.cost*2)
 
 
@@ -199,5 +199,5 @@ t0 = time.time()
 res = optimize.minimize(nm_func, p0, args=(x, y, w, model), method='nelder-mead')
 t1 = time.time()
 t = (t1-t0)*1e3
-print('optimize.minimize (nerlder): ', res.x, t)
+print(f'optimize.least_square (Nelder-Mead): {popt} - t={t}ms')
 print(chi2(res.x, x, y, w, model), res.fun)
