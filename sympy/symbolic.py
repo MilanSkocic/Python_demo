@@ -11,7 +11,7 @@ print(f"Symbolic expression: f={f}")
 
 # lambdify symbolic expression
 f_numeric = sym.lambdify((a, n, t), f, modules="numpy")
-x = np.linspace(0, 10, 10)
+x = np.linspace(0.1, 10, 100)
 y = f_numeric(1, 1, x)
 print("Lambdify expression with explicit arguments: f(a, n, t)")
 print(y)
@@ -25,3 +25,12 @@ print(f"Lambdify expression in vectorial form for parameters for scipy optimizer
 f_numeric = sym.lambdify([p,t], f, modules="numpy")
 y = f_numeric((1,1), x)
 print(y)
+
+# Jacobian
+jac_s=sym.Matrix((f,)).jacobian(pk)
+print("Symbolic Jacobian {jac_s}")
+
+# Lambdify
+jac_num = sym.lambdify((p, t), jac_s, modules="numpy")
+res = jac_num((1,1), x).T.squeeze(axis=2)
+print(res)
