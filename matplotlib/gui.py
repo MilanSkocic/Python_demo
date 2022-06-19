@@ -157,7 +157,7 @@ class FigureFrame(ttk.Frame):
         self._entry.grid(row=row, column=col, sticky='nswe')
 
         # tweaks according to plot type
-        if self._plot_type is 'Complex Impedance':
+        if self._plot_type == 'Complex Impedance':
             self._aspect_equal()
 
         self.refresh()
