@@ -10,6 +10,7 @@
 .idea
 .vscode
 .mypy_cache
+.venv
 
 # pipenv files
 Pipfile
