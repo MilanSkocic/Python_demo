@@ -7,7 +7,6 @@ import pathlib
 import subprocess
 import configparser
 import argparse
-from typing_extensions import ParamSpecKwargs
 
 
 DEST = pathlib.Path.home() / "wheels"
