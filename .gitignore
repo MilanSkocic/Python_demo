@@ -6,6 +6,8 @@
 *.dylib
 *.pyd
 *.pyc
+*.png
+*.mp4
 
 .idea
 .vscode
